@@ -1,0 +1,120 @@
+Automation Documentation
+
+Hệ thống Quản Lý Nhà Trọ / Ký Túc Xá
+
+1. Giới Thiệu
+
+Tài liệu này mô tả các chức năng tự động hóa (Automation) và hoạt động automation testing của hệ thống quản lý nhà trọ / ký túc xá.
+
+Mục tiêu:
+
+Giảm thao tác thủ công cho người quản lý
+Hỗ trợ kiểm thử hệ thống hiệu quả hơn
+Đảm bảo hệ thống hoạt động ổn định
+2. Chức Năng Tự Động Hóa Trong Hệ Thống
+2.1 Tự động cập nhật trạng thái phòng
+
+Khi người thuê được thêm vào phòng:
+
+Hệ thống tự động cập nhật số người hiện tại
+Nếu phòng đủ số lượng:
+trạng thái chuyển thành occupied
+Nếu còn chỗ:
+trạng thái là available
+Ví dụ
+Room	Capacity	Current Tenant	Status
+101	4	4	occupied
+102	4	2	available
+2.2 Tự động tính tổng hóa đơn
+
+Khi chủ trọ nhập:
+
+tiền điện
+tiền nước
+tiền phòng
+
+Hệ thống tự động tính:
+
+Total = Room Fee + Electricity Fee + Water Fee
+Ví dụ
+Room Fee	Electricity	Water	Total
+2,000,000	200,000	100,000	2,300,000
+2.3 Tự động cập nhật trạng thái thanh toán
+
+Sau khi người thuê thanh toán:
+
+hệ thống tự động cập nhật invoice status:
+paid
+hoặc unpaid
+2.4 Tự động liên kết dữ liệu hợp đồng
+
+Khi tạo hợp đồng:
+
+hệ thống tự động:
+liên kết tenant
+liên kết room
+lưu thời gian thuê
+3. Automation Testing
+3.1 API Testing bằng Postman
+
+Hệ thống sử dụng Postman để kiểm thử tự động các API chính:
+
+Login API
+Room API
+Tenant API
+Contract API
+Invoice API
+3.2 Các nội dung kiểm thử
+Login API
+đăng nhập đúng tài khoản
+đăng nhập sai mật khẩu
+kiểm tra response status
+Room API
+thêm phòng
+sửa phòng
+xóa phòng
+lấy danh sách phòng
+Tenant API
+thêm người thuê
+cập nhật thông tin
+xóa người thuê
+Invoice API
+tạo hóa đơn
+cập nhật trạng thái thanh toán
+3.3 Kết quả mong đợi
+Module	Expected Result
+Login	Login successful
+Room	CRUD hoạt động đúng
+Tenant	Dữ liệu lưu thành công
+Contract	Hợp đồng được tạo
+Invoice	Hóa đơn tính đúng
+4. GitHub Automation
+
+Hệ thống sử dụng GitHub để:
+
+quản lý source code
+quản lý commit
+theo dõi tiến độ phát triển
+
+Ngoài ra repository có thể sử dụng:
+
+GitHub Actions
+CI workflow
+
+để tự động build backend khi push code.
+
+5. Kết Luận
+
+Automation giúp:
+
+giảm thao tác thủ công
+tăng độ chính xác
+hỗ trợ kiểm thử hệ thống
+giúp quản lý dự án hiệu quả hơn
+
+Các chức năng automation hiện tại tập trung vào:
+
+quản lý hóa đơn
+cập nhật trạng thái phòng
+kiểm thử API
+hỗ trợ build hệ thống tự động.
