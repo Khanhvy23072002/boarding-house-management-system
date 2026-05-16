@@ -137,6 +137,9 @@ body {
 <script>
 function login() {
     let role = document.querySelector('input[name="role"]:checked');
+    let username = document.getElementById("username").value;
+    let password = document.getElementById("password").value;
+    let message = document.getElementById("message");
 
     if (!role) {
         alert("Vui lòng chọn User hoặc Admin");
@@ -151,6 +154,75 @@ function login() {
         window.location.href = "user.html";
     }
 }
+     // CALL API LOGIN
+        const response = await fetch("http://localhost:8080/api/auth/login", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+                username: username,
+                password: password,
+                role: role.value
+
+            })
+
+        });
+
+        // LOGIN SUCCESS
+        if(response.ok){
+
+            const data = await response.json();
+
+            message.innerHTML = "Đăng nhập thành công";
+
+            message.className = "message success";
+
+            // Redirect theo role
+            setTimeout(() => {
+
+                if(data.role === "admin"){
+
+                    window.location.href = "dashboard.html";
+
+                }else{
+
+                    window.location.href = "user.html";
+
+                }
+
+            }, 1000);
+
+        }
+
+        // LOGIN FAIL
+        else{
+
+            message.innerHTML = "Sai tài khoản hoặc mật khẩu";
+
+            message.className = "message error";
+
+        }
+
+    }
+
+    // BACKEND ERROR
+    catch(error){
+
+        console.log(error);
+
+        message.innerHTML = "Không kết nối được backend";
+
+        message.className = "message error";
+
+    }
+
+}
+
 </script>
 
 </body>
