@@ -155,77 +155,82 @@ body {
     <p id="message"></p>
 
 </div>
-
 <script>
+
 async function login() {
-    let role = document.querySelector('input[name="role"]:checked');
-    let username = document.getElementById("username").value;
-    let password = document.getElementById("password").value;
-    let message = document.getElementById("message");
+
+    let role = document.querySelector(
+        'input[name="role"]:checked'
+    );
+
+    let username =
+        document.getElementById("username").value;
+
+    let password =
+        document.getElementById("password").value;
+
+    let message =
+        document.getElementById("message");
 
     // CHECK ROLE
     if (!role) {
+
         alert("Vui lòng chọn User hoặc Admin");
+
         return;
     }
-    try{
-    // CALL API LOGIN
+
+    try {
+
+        // CALL API
         const response = await fetch(
             "http://localhost:8080/api/auth/login",
             {
+
                 method: "POST",
-                
+
                 headers: {
-                "Content-Type": "application/json"
-            },
+                    "Content-Type": "application/json"
+                },
 
-            body: JSON.stringify({
+                body: JSON.stringify({
 
-                username: username,
-                password: password,
-               
-            })
+                    username: username,
+                    password: password
+
+                })
 
             }
         );
 
-
-    if (role.value === "admin") {
-        // 👉 ADMIN → vào dashboard
-        window.location.href = "dashboard.html";
-    } else {
-        // 👉 USER → vào trang user (chưa làm)
-        window.location.href = "user.html";
-    }
-}
-        // Convert JSON
+        // CONVERT JSON
         const result = await response.json();
 
         console.log(result);
 
-        // LOGIN SUCCESS
+        // SUCCESS
         if (result.success === true) {
 
             message.style.color = "green";
 
             message.innerHTML = result.message;
 
-            // SAVE USER
             localStorage.setItem(
                 "user",
                 JSON.stringify(result.data)
             );
 
-            // Redirect
             setTimeout(() => {
 
                 if (result.data.role === "ADMIN") {
 
-                    window.location.href = "dashboard.html";
+                    window.location.href =
+                        "dashboard.html";
 
                 } else {
 
-                    window.location.href = "user.html";
+                    window.location.href =
+                        "user.html";
 
                 }
 
@@ -233,12 +238,13 @@ async function login() {
 
         }
 
-        // LOGIN FAIL
+        // FAIL
         else {
 
             message.style.color = "red";
 
-            message.innerHTML = result.message;
+            message.innerHTML =
+                result.message;
 
         }
 
