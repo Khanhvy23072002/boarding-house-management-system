@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 <meta charset="UTF-8">
 <title>Room</title>
 
 <style>
+
 body {
     font-family: Arial;
     background: #eee;
@@ -26,7 +28,6 @@ body {
     cursor: pointer;
 }
 
-/* hover */
 .nav button:hover {
     background: #ccc;
 }
@@ -37,13 +38,14 @@ body {
     display: inline-block;
     padding: 10px 40px;
     margin: 20px;
+    font-weight: bold;
 }
 
 /* ACTION BUTTON */
 .action-btn {
     display: inline-block;
     margin: 20px;
-    padding: 20px 60px;
+    padding: 15px 40px;
     background: #9cc48b;
     border-radius: 50px;
     border: none;
@@ -76,24 +78,16 @@ td {
 }
 
 /* INPUT */
-.fake-input {
-    border: none;
-    background: transparent;
-    text-align: center;
-    width: 100%;
-    outline: none;
+input {
+    padding: 8px;
 }
 
-/* ADD ROW BUTTON */
-.add-row-btn {
+/* MESSAGE */
+#message {
     margin-top: 15px;
-    padding: 10px 20px;
-    background: #6ea84f;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
+    font-weight: bold;
 }
+
 </style>
 
 </head>
@@ -101,90 +95,326 @@ td {
 <body>
 
 <div class="container">
-    
+
     <!-- NAV -->
     <div class="nav">
-        <button><img src="logo.png" style="height:30px;"></button>
-        <button onclick="goTo('dashboard.html')" id="dashboardBtn">Bảng điều khiển</button>
-        <button onclick="goTo('room.html')" id="roomBtn">Phòng</button>
-        <button onclick="goTo('tenant.html')" id="tenantBtn">Người thuê</button>
-        <button onclick="goTo('contract.html')" id="contractBtn">Hợp đồng</button>
-        <button onclick="goTo('invoice.html')" id="invoiceBtn">Hóa đơn</button>
+
+        <button onclick="goTo('dashboard.html')">
+            Bảng điều khiển
+        </button>
+
+        <button onclick="goTo('room.html')">
+            Phòng
+        </button>
+
+        <button onclick="goTo('tenant.html')">
+            Người thuê
+        </button>
+
+        <button onclick="goTo('contract.html')">
+            Hợp đồng
+        </button>
+
+        <button onclick="goTo('invoice.html')">
+            Hóa đơn
+        </button>
+
     </div>
 
     <!-- TITLE -->
-    <div class="title-box">QUẢN LÝ PHÒNG</div>
+    <div class="title-box">
+        QUẢN LÝ PHÒNG
+    </div>
 
     <br>
 
-    <!-- ACTION -->
-    <button class="action-btn" onclick="searchRoom()">Tìm phòng</button>
+    <!-- SEARCH -->
+    <input
+        type="text"
+        id="searchRoom"
+        placeholder="Nhập số phòng..."
+    >
 
-    <input type="text" id="searchRoom" placeholder="Nhập số phòng...">
+    <button
+        class="action-btn"
+        onclick="searchRoom()"
+    >
+        Tìm phòng
+    </button>
+
+    <!-- ADD ROOM -->
+    <h3>Thêm phòng</h3>
+
+    <input type="text" id="roomNumber" placeholder="Số phòng">
+
+    <input type="number" id="capacity" placeholder="Sức chứa">
+
+    <input type="number" id="price" placeholder="Giá phòng">
+
+    <select id="status">
+        <option value="AVAILABLE">AVAILABLE</option>
+        <option value="FULL">FULL</option>
+    </select>
+
+    <button
+        class="action-btn"
+        onclick="addRoom()"
+    >
+        Thêm phòng
+    </button>
+
+    <!-- MESSAGE -->
+    <p id="message"></p>
 
     <!-- TABLE -->
     <table id="roomTable">
-    <tr>
-        <th>Phòng</th>
-        <th>Sức chứa</th>
-        <th>Người đang ở</th>
-        <th>Trạng thái</th>
-        <th>Sửa</th>
-    </tr>
 
-    <tr>
-        <td><input class="fake-input"></td>
-        <td><input class="fake-input"></td>
-        <td><input class="fake-input"></td>
-        <td><input class="fake-input"></td>
-        <td><input class="fake-input"></td>
-    </tr>
+        <thead>
+
+            <tr>
+                <th>ID</th>
+                <th>Phòng</th>
+                <th>Sức chứa</th>
+                <th>Giá phòng</th>
+                <th>Trạng thái</th>
+                <th>Xóa</th>
+            </tr>
+
+        </thead>
+
+        <tbody id="roomBody">
+
+        </tbody>
+
     </table>
 
-    <!-- ADD BUTTON -->
-    <button class="add-row-btn" onclick="addRow()">Thêm</button>
 </div>
 
-<!-- ADD ROW -->
 <script>
-function addRow() {
-    let table = document.getElementById("roomTable");
-    let row = table.insertRow();
 
-    for (let i = 0; i < 5; i++) {
-        let cell = row.insertCell();
-        cell.innerHTML = '<input class="fake-input">';
+const API_URL =
+    "http://localhost:8080/api/rooms";
+
+
+// LOAD ALL ROOMS
+async function loadRooms() {
+
+    try {
+
+        const response =
+            await fetch(API_URL);
+
+        const rooms =
+            await response.json();
+
+        console.log(rooms);
+
+        const roomBody =
+            document.getElementById("roomBody");
+
+        roomBody.innerHTML = "";
+
+        rooms.forEach(room => {
+
+            let row = `
+
+                <tr>
+
+                    <td>${room.id}</td>
+
+                    <td>${room.roomNumber}</td>
+
+                    <td>${room.capacity}</td>
+
+                    <td>
+                        ${room.price.toLocaleString("vi-VN")} VNĐ
+                    </td>
+
+                    <td>${room.status}</td>
+
+                    <td>
+
+                        <button onclick="deleteRoom(${room.id})">
+
+                            Xóa
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            roomBody.innerHTML += row;
+
+        });
+
     }
-}
-</script>
 
-<!-- SEARCH ROOM -->
-<script>
+    catch (error) {
+
+        console.log(error);
+
+        document.getElementById("message").innerHTML =
+            "Không thể tải dữ liệu phòng";
+
+    }
+
+}
+
+
+// ADD ROOM
+async function addRoom() {
+
+    const roomNumber =
+        document.getElementById("roomNumber").value;
+
+    const capacity =
+        document.getElementById("capacity").value;
+
+    const price =
+        document.getElementById("price").value;
+
+    const status =
+        document.getElementById("status").value;
+
+    try {
+
+        const response = await fetch(
+            API_URL,
+            {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    roomNumber: roomNumber,
+                    capacity: Number(capacity),
+                    price: Number(price),
+                    status: status
+
+                })
+
+            }
+        );
+
+        const result =
+            await response.json();
+
+        console.log(result);
+
+        document.getElementById("message").style.color =
+            "green";
+
+        document.getElementById("message").innerHTML =
+            "Thêm phòng thành công";
+
+        loadRooms();
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        document.getElementById("message").style.color =
+            "red";
+
+        document.getElementById("message").innerHTML =
+            "Không thể thêm phòng";
+
+    }
+
+}
+
+
+// DELETE ROOM
+async function deleteRoom(id) {
+
+    try {
+
+        const response = await fetch(
+
+            API_URL + "/" + id,
+
+            {
+                method: "DELETE"
+            }
+
+        );
+
+        const result =
+            await response.json();
+
+        console.log(result);
+
+        loadRooms();
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+    }
+
+}
+
+
+// SEARCH ROOM
 function searchRoom() {
-    let input = document.getElementById("searchRoom").value.toLowerCase();
-    let rows = document.querySelectorAll("#roomTable tr");
 
-    for (let i = 1; i < rows.length; i++) {
+    let input =
+        document.getElementById("searchRoom")
+        .value
+        .toLowerCase();
 
-        // Lấy input trong cột đầu tiên
-        let roomInput = rows[i].cells[0].querySelector("input");
-        let room = roomInput.value.toLowerCase();
+    let rows =
+        document.querySelectorAll("#roomBody tr");
 
-        if (room.includes(input) && room !== "") {
-            rows[i].style.display = "";
-        } else {
-            rows[i].style.display = "none";
+    rows.forEach(row => {
+
+        let room =
+            row.cells[1]
+            .innerText
+            .toLowerCase();
+
+        if (room.includes(input)) {
+
+            row.style.display = "";
+
         }
-    }
-}
-</script>
 
-<!-- TURN -->
- <script>
-function goTo(page) {
-    window.location.href = page;
+        else {
+
+            row.style.display = "none";
+
+        }
+
+    });
+
 }
+
+
+// TURN PAGE
+function goTo(page) {
+
+    window.location.href = page;
+
+}
+
+
+// AUTO LOAD
+loadRooms();
+
 </script>
 
 </body>
+
 </html>
+
