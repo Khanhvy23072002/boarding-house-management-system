@@ -17,6 +17,8 @@ body {
     width: 800px;
     margin: auto;
     padding: 20px;
+    margin-top: 50 px;
+    background: white;
 }
 
 /* HEADER */
@@ -25,6 +27,8 @@ body {
     padding: 20px;
     border-radius: 15px;
     margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
 }
 
 /* ROLE */
@@ -51,6 +55,7 @@ body {
     padding: 10px;
     border: none;
     background: #c0c6d6;
+    box-sizing: border-box;
 }
 
 /* BUTTON */
@@ -60,6 +65,8 @@ body {
     background: #7da3c7;
     border: none;
     cursor: pointer;
+    color: white;
+    font-size: 16px;
 }
 
 .login-btn:hover {
@@ -87,6 +94,12 @@ body {
 .register-text a:hover {
     color: darkred;
 }
+
+/* MESSAGE */
+#message {
+    margin-top: 15px;
+    font-weight: bold;
+}
 </style>
 
 </head>
@@ -112,30 +125,39 @@ body {
     <!-- USERNAME -->
     <div class="input-box">
         <label>Tên đăng nhập</label>
-        <input type="text" id="username">
+        <input type="text" id="username" placeholder="Nhập username">
     </div>
 
     <!-- PASSWORD -->
     <div class="input-box">
         <label>Mật khẩu</label>
-        <input type="password" id="password">
+        <input type="password" id="password" placeholder="Nhập password">
     </div>
 
     <!-- LOGIN -->
-    <button class="login-btn" onclick="login()">Đăng nhập</button>
+    <button class="login-btn" onclick="login()">
+        Đăng nhập
+    </button>
+    
     <br>
-    <button class="forgot-btn">Quên mật khẩu?</button>
+    
+    <button class="forgot-btn">
+        Quên mật khẩu?
+    </button>
 
-    <!-- FORGOT PASSWORD -->
+    <!--  -->
     <p class="register-text">
     Bạn chưa có tài khoản? 
     <a href="register.html">Đăng ký ngay</a>
     </p>
 
+    <!-- MESSAGE -->
+    <p id="message"></p>
+
 </div>
 
 <script>
-function login() {
+async function login() {
     let role = document.querySelector('input[name="role"]:checked');
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;
@@ -155,11 +177,12 @@ function login() {
     }
 }
      // CALL API LOGIN
-        const response = await fetch("http://localhost:8080/api/auth/login", {
-
-            method: "POST",
-
-            headers: {
+        const response = await fetch(
+            "http://localhost:8080/api/auth/login",
+            {
+                method: "POST",
+                
+                headers: {
                 "Content-Type": "application/json"
             },
 
@@ -167,29 +190,38 @@ function login() {
 
                 username: username,
                 password: password,
-                role: role.value
-
+               
             })
 
-        });
+            }
+        );
+
+        // Convert JSON
+        const result = await response.json();
+
+        console.log(result);
 
         // LOGIN SUCCESS
-        if(response.ok){
+        if (result.success === true) {
 
-            const data = await response.json();
+            message.style.color = "green";
 
-            message.innerHTML = "Đăng nhập thành công";
+            message.innerHTML = result.message;
 
-            message.className = "message success";
+            // Save user data
+            localStorage.setItem(
+                "user",
+                JSON.stringify(result.data)
+            );
 
-            // Redirect theo role
+            // Redirect
             setTimeout(() => {
 
-                if(data.role === "admin"){
+                if (result.data.role === "ADMIN") {
 
                     window.location.href = "dashboard.html";
 
-                }else{
+                } else {
 
                     window.location.href = "user.html";
 
@@ -200,24 +232,24 @@ function login() {
         }
 
         // LOGIN FAIL
-        else{
+        else {
 
-            message.innerHTML = "Sai tài khoản hoặc mật khẩu";
+            message.style.color = "red";
 
-            message.className = "message error";
+            message.innerHTML = result.message;
 
         }
 
     }
 
-    // BACKEND ERROR
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
-        message.innerHTML = "Không kết nối được backend";
+        message.style.color = "red";
 
-        message.className = "message error";
+        message.innerHTML =
+            "Không thể kết nối tới backend";
 
     }
 
@@ -227,3 +259,8 @@ function login() {
 
 </body>
 </html>
+
+               
+
+
+
